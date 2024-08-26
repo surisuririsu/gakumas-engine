@@ -1,4 +1,11 @@
 {
   "name": "gakumas-engine",
-  "packageManager": "yarn@3.5.0"
+  "packageManager": "yarn@3.5.0",
+  "type": "module",
+  "dependencies": {
+    "gakumas-data": "../gakumas-data"
+  },
+  "scripts": {
+    "dev": "node index.js"
+  }
 }
