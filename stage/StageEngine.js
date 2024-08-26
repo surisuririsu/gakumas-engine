@@ -378,13 +378,14 @@ export default class StageEngine {
   }
 
   _drawCard(state) {
+    if (!state.deckCardIds.length) {
+      if (!state.discardedCardIds.length) return state;
+      state = this._recycleDiscards(state);
+    }
     const cardId = state.deckCardIds.pop();
     state.handCardIds.push(cardId);
     DEBUG && this.logger.debug("Drew card", SkillCards.getById(cardId).name);
     this.logger.log("drawCard", { type: "skillCard", id: cardId });
-    if (!state.deckCardIds.length) {
-      state = this._recycleDiscards(state);
-    }
     return state;
   }
 
