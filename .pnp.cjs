@@ -28,16 +28,16 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         [null, {\
           "packageLocation": "./",\
           "packageDependencies": [\
-            ["gakumas-data", "file:../gakumas-data#../gakumas-data::hash=95f62b&locator=gakumas-engine%40workspace%3A."]\
+            ["gakumas-data", "https://github.com/surisuririsu/gakumas-data.git#commit=66007398f8abc7708cf483a7135ba3d06d2348ac"]\
           ],\
           "linkType": "SOFT"\
         }]\
       ]],\
       ["gakumas-data", [\
-        ["file:../gakumas-data#../gakumas-data::hash=95f62b&locator=gakumas-engine%40workspace%3A.", {\
-          "packageLocation": "./.yarn/cache/gakumas-data-file-00a8fae0b0-634fee22d0.zip/node_modules/gakumas-data/",\
+        ["https://github.com/surisuririsu/gakumas-data.git#commit=66007398f8abc7708cf483a7135ba3d06d2348ac", {\
+          "packageLocation": "./.yarn/cache/gakumas-data-https-33d13c95f5-3cff4d603d.zip/node_modules/gakumas-data/",\
           "packageDependencies": [\
-            ["gakumas-data", "file:../gakumas-data#../gakumas-data::hash=95f62b&locator=gakumas-engine%40workspace%3A."]\
+            ["gakumas-data", "https://github.com/surisuririsu/gakumas-data.git#commit=66007398f8abc7708cf483a7135ba3d06d2348ac"]\
           ],\
           "linkType": "HARD"\
         }]\
@@ -47,7 +47,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./",\
           "packageDependencies": [\
             ["gakumas-engine", "workspace:."],\
-            ["gakumas-data", "file:../gakumas-data#../gakumas-data::hash=95f62b&locator=gakumas-engine%40workspace%3A."]\
+            ["gakumas-data", "https://github.com/surisuririsu/gakumas-data.git#commit=66007398f8abc7708cf483a7135ba3d06d2348ac"]\
           ],\
           "linkType": "SOFT"\
         }]\
