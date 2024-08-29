@@ -89,6 +89,7 @@ export default class StageEngine {
 
       // Effect modifiers
       concentrationMultiplier: 1,
+      motivationMultiplier: 1,
     };
   }
 
@@ -542,6 +543,7 @@ export default class StageEngine {
 
         // Reset modifiers
         state.concentrationMultiplier = 1;
+        state.motivationMultiplier = 1;
 
         if (effect.sourceType) {
           this.logger.log("entityEnd", {
@@ -823,7 +825,7 @@ export default class StageEngine {
         let genki = state.intermediateGenki;
 
         // Apply motivation
-        genki += state.motivation;
+        genki += state.motivation * state.motivationMultiplier;
 
         if (state.nullifyGenkiTurns) {
           genki = 0;
