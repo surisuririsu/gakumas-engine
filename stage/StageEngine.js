@@ -59,6 +59,7 @@ export default class StageEngine {
       discardedCardIds: [],
       removedCardIds: [],
       cardsUsed: 0,
+      turnCardsUsed: 0,
 
       // Phase effects
       effectsByPhase: {},
@@ -134,20 +135,31 @@ export default class StageEngine {
 
     nextState.started = true;
 
+    // Set default effects
+    nextState = this._setEffects(nextState, "default", "好印象", [
+      {
+        phase: "endOfTurn",
+        conditions: ["goodImpressionTurns>=1"],
+        actions: ["score+=goodImpressionTurns"],
+        order: 100,
+      },
+    ]);
+
     // Set stage effects
     DEBUG &&
       this.logger.debug("Setting stage effects", this.stageConfig.effects);
-    for (let effect of this.stageConfig.effects) {
-      nextState = this._setEffect(nextState, "stage", null, effect);
-    }
+    nextState = this._setEffects(
+      nextState,
+      "stage",
+      null,
+      this.stageConfig.effects
+    );
 
     // Set p-item effects
     for (let id of this.idolConfig.pItemIds) {
       const { effects, name } = PItems.getById(id);
       DEBUG && this.logger.debug("Setting p-item effects", name, effects);
-      for (let effect of effects) {
-        nextState = this._setEffect(nextState, "pItem", id, effect);
-      }
+      nextState = this._setEffects(nextState, "pItem", id, effects);
     }
 
     nextState = this._triggerEffectsForPhase("startOfStage", nextState);
@@ -235,6 +247,7 @@ export default class StageEngine {
     nextState = this._triggerEffects(card.effects, nextState);
 
     nextState.cardsUsed++;
+    nextState.turnCardsUsed++;
 
     // Trigger events after card used
     nextState = this._triggerEffectsForPhase("afterCardUsed", nextState);
@@ -291,19 +304,6 @@ export default class StageEngine {
 
     state = this._triggerEffectsForPhase("endOfTurn", state);
 
-    // Default effects
-    state = this._triggerEffects(
-      [
-        {
-          conditions: ["goodImpressionTurns>=1"],
-          actions: ["score+=goodImpressionTurns"],
-          sourceType: "default",
-          sourceId: "好印象",
-        },
-      ],
-      state
-    );
-
     // Reduce buff turns
     for (let key of EOT_DECREMENT_FIELDS) {
       if (state.freshBuffs[key]) {
@@ -316,6 +316,7 @@ export default class StageEngine {
     // Reset one turn buffs
     state.oneTurnScoreBuff = 0;
     state.cardUsesRemaining = 0;
+    state.turnCardsUsed = 0;
 
     // Decrement effect ttl and expire
     for (let i in state.effects) {
@@ -448,8 +449,15 @@ export default class StageEngine {
     return cardEffects;
   }
 
-  _setEffect(state, sourceType, sourceId, effect) {
-    state.effects.push({ ...effect, sourceType, sourceId });
+  _setEffects(state, sourceType, sourceId, effects) {
+    for (let i = 0; i < effects.length; i++) {
+      const effect = { ...effects[i] };
+      if (!effect.actions && i < effects.length - 1) {
+        effect.effects = [effects[++i]];
+      }
+      state.effects.push({ ...effect, sourceType, sourceId });
+    }
+    state.effects.sort((a, b) => (a.order || 0) - (b.order || 0)); // Ascending
     return state;
   }
 
@@ -493,11 +501,11 @@ export default class StageEngine {
       }
 
       if (effect.phase) {
-        state = this._setEffect(
+        state = this._setEffects(
           state,
           state.usedCardId ? "skillCardEffect" : null,
           state.usedCardId,
-          effect
+          [effect]
         );
         continue;
       }
@@ -544,6 +552,31 @@ export default class StageEngine {
         // Reset modifiers
         state.concentrationMultiplier = 1;
         state.motivationMultiplier = 1;
+
+        if (effect.sourceType) {
+          this.logger.log("entityEnd", {
+            type: effect.sourceType,
+            id: effect.sourceId,
+          });
+        }
+      }
+
+      // Set effects
+      if (effect.effects) {
+        DEBUG && this.logger.debug("Setting effects", effect.effects);
+        if (effect.sourceType) {
+          this.logger.log("entityStart", {
+            type: effect.sourceType,
+            id: effect.sourceId,
+          });
+        }
+
+        state = this._setEffects(
+          state,
+          effect.sourceType,
+          effect.sourceId,
+          effect.effects
+        );
 
         if (effect.sourceType) {
           this.logger.log("entityEnd", {
