@@ -220,6 +220,7 @@ export default class StageEngine {
     this.logger.log("entityStart", { type: "skillCard", id: cardId });
 
     // Set usedCard variables
+    nextState._usedCardId = card.id;
     nextState.usedCardId = card.upgraded ? card.id - 1 : card.id;
     nextState.cardEffects = this._getCardEffects(card);
 
@@ -264,6 +265,7 @@ export default class StageEngine {
     }
 
     // Reset usedCard variables
+    nextState._usedCardId = null;
     nextState.usedCardId = null;
     nextState.cardEffects = [];
 
@@ -501,10 +503,12 @@ export default class StageEngine {
       }
 
       if (effect.phase) {
+        this.logger.log("setEffect");
+
         state = this._setEffects(
           state,
-          state.usedCardId ? "skillCardEffect" : null,
-          state.usedCardId,
+          state._usedCardId ? "skillCardEffect" : null,
+          state._usedCardId,
           [effect]
         );
         continue;
@@ -537,39 +541,29 @@ export default class StageEngine {
         }
       }
 
+      if (effect.sourceType) {
+        this.logger.log("entityStart", {
+          type: effect.sourceType,
+          id: effect.sourceId,
+        });
+      }
+
       // Execute actions
       if (effect.actions) {
         DEBUG && this.logger.debug("Executing actions", effect.actions);
-        if (effect.sourceType) {
-          this.logger.log("entityStart", {
-            type: effect.sourceType,
-            id: effect.sourceId,
-          });
-        }
 
         state = this._executeActions(effect.actions, state);
 
         // Reset modifiers
         state.concentrationMultiplier = 1;
         state.motivationMultiplier = 1;
-
-        if (effect.sourceType) {
-          this.logger.log("entityEnd", {
-            type: effect.sourceType,
-            id: effect.sourceId,
-          });
-        }
       }
 
       // Set effects
       if (effect.effects) {
         DEBUG && this.logger.debug("Setting effects", effect.effects);
-        if (effect.sourceType) {
-          this.logger.log("entityStart", {
-            type: effect.sourceType,
-            id: effect.sourceId,
-          });
-        }
+
+        this.logger.log("setEffect");
 
         state = this._setEffects(
           state,
@@ -577,13 +571,13 @@ export default class StageEngine {
           effect.sourceId,
           effect.effects
         );
+      }
 
-        if (effect.sourceType) {
-          this.logger.log("entityEnd", {
-            type: effect.sourceType,
-            id: effect.sourceId,
-          });
-        }
+      if (effect.sourceType) {
+        this.logger.log("entityEnd", {
+          type: effect.sourceType,
+          id: effect.sourceId,
+        });
       }
 
       triggeredEffects.push(i);
