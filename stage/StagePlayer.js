@@ -1,3 +1,5 @@
+import { GRAPHED_FIELDS, LOGGED_FIELDS } from "./constants";
+
 export default class StagePlayer {
   constructor(engine, strategy) {
     this.engine = engine;
@@ -17,6 +19,7 @@ export default class StagePlayer {
         handCardIds: [...state.handCardIds],
         scores,
         selectedCardId: selectedCardId,
+        state: this._getHandStateForLogging(state),
       });
 
       if (selectedCardId) {
@@ -31,5 +34,18 @@ export default class StagePlayer {
       logs: this.engine.logger.logs,
       graphData: this.engine.logger.graphData,
     };
+  }
+
+  _getHandStateForLogging(state) {
+    let res = LOGGED_FIELDS.reduce((acc, cur) => {
+      if (state[cur]) acc[cur] = state[cur];
+      return acc;
+    }, {});
+    if (state.scoreBuffs.length) {
+      res.scoreBuff = state.scoreBuffs;
+    }
+    delete res.turnsRemaining;
+    delete res.cardUsesRemaining;
+    return res;
   }
 }
