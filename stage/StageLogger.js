@@ -1,8 +1,9 @@
-import { DEBUG, GRAPHED_FIELDS } from "./constants";
+import { GRAPHED_FIELDS } from "./constants";
 
 export default class StageLogger {
-  constructor() {
+  constructor(debuggingEnabled) {
     this.disabled = false;
+    this.debuggingEnabled = debuggingEnabled;
     this.clear();
   }
 
@@ -20,7 +21,7 @@ export default class StageLogger {
   }
 
   debug(...args) {
-    if (!DEBUG || this.disabled) return;
+    if (!this.debuggingEnabled || this.disabled) return;
     console.log(...args);
   }
 

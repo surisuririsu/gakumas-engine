@@ -1,7 +1,6 @@
 import { PItems, SkillCards } from "gakumas-data";
 import { shuffle } from "../utils";
 import {
-  DEBUG,
   DEBUFF_FIELDS,
   COST_FIELDS,
   EOT_DECREMENT_FIELDS,
@@ -22,10 +21,11 @@ const KEYS_TO_DIFF = [
 ];
 
 export default class StageEngine {
-  constructor(stageConfig, idolConfig, logger) {
+  constructor(stageConfig, idolConfig, logger, debug) {
     this.stageConfig = stageConfig;
     this.idolConfig = idolConfig;
     this.logger = logger;
+    this.debug = debug;
   }
 
   getInitialState() {
@@ -71,8 +71,6 @@ export default class StageEngine {
       concentration: 0,
       goodImpressionTurns: 0,
       motivation: 0,
-      oneTurnScoreBuff: 0,
-      permanentScoreBuff: 0,
       halfCostTurns: 0,
       doubleCostTurns: 0,
       costReduction: 0,
@@ -80,6 +78,9 @@ export default class StageEngine {
       doubleCardEffectCards: 0,
       nullifyGenkiTurns: 0,
       nullifyDebuff: 0,
+
+      // Score buffs
+      scoreBuffs: [],
 
       // Used card
       usedCardId: null,
@@ -125,7 +126,7 @@ export default class StageEngine {
   }
 
   startStage(state) {
-    if (DEBUG && state.started) {
+    if (this.debug && state.started) {
       throw new Error("Stage already started!");
     }
 
@@ -146,8 +147,7 @@ export default class StageEngine {
     ]);
 
     // Set stage effects
-    DEBUG &&
-      this.logger.debug("Setting stage effects", this.stageConfig.effects);
+    this.logger.debug("Setting stage effects", this.stageConfig.effects);
     nextState = this._setEffects(
       nextState,
       "stage",
@@ -158,7 +158,7 @@ export default class StageEngine {
     // Set p-item effects
     for (let id of this.idolConfig.pItemIds) {
       const { effects, name } = PItems.getById(id);
-      DEBUG && this.logger.debug("Setting p-item effects", name, effects);
+      this.logger.debug("Setting p-item effects", name, effects);
       nextState = this._setEffects(nextState, "pItem", id, effects);
     }
 
@@ -194,7 +194,7 @@ export default class StageEngine {
   useCard(state, cardId) {
     const handIndex = state.handCardIds.indexOf(cardId);
 
-    if (DEBUG) {
+    if (this.debug) {
       if (!state.started) {
         throw new Error("Stage not started!");
       }
@@ -216,7 +216,7 @@ export default class StageEngine {
 
     let nextState = JSON.parse(JSON.stringify(state));
 
-    DEBUG && this.logger.debug("Using card", cardId, card.name);
+    this.logger.debug("Using card", cardId, card.name);
     this.logger.log("entityStart", { type: "skillCard", id: cardId });
 
     // Set usedCard variables
@@ -225,7 +225,7 @@ export default class StageEngine {
     nextState.cardEffects = this._getCardEffects(card);
 
     // Apply card cost
-    DEBUG && this.logger.debug("Applying cost", card.cost);
+    this.logger.debug("Applying cost", card.cost);
     nextState = this._executeActions(card.cost, nextState);
 
     // Remove card from hand
@@ -287,7 +287,7 @@ export default class StageEngine {
   }
 
   endTurn(state) {
-    if (DEBUG) {
+    if (this.debug) {
       if (!state.started) {
         throw new Error("Stage not started!");
       }
@@ -315,8 +315,17 @@ export default class StageEngine {
       }
     }
 
+    // Reduce score buff turns
+    for (let i in state.scoreBuffs) {
+      if (state.scoreBuffs[i].fresh) {
+        state.scoreBuffs[i].fresh = false;
+      } else if (state.scoreBuffs[i].turns) {
+        state.scoreBuffs[i].turns--;
+      }
+    }
+    state.scoreBuffs = state.scoreBuffs.filter(({ turns }) => turns);
+
     // Reset one turn buffs
-    state.oneTurnScoreBuff = 0;
     state.cardUsesRemaining = 0;
     state.turnCardsUsed = 0;
 
@@ -344,7 +353,7 @@ export default class StageEngine {
   }
 
   _startTurn(state) {
-    DEBUG && this.logger.debug("Starting turn", state.turnsElapsed + 1);
+    this.logger.debug("Starting turn", state.turnsElapsed + 1);
 
     state.turnType =
       state.turnTypes[
@@ -388,7 +397,7 @@ export default class StageEngine {
     }
     const cardId = state.deckCardIds.pop();
     state.handCardIds.push(cardId);
-    DEBUG && this.logger.debug("Drew card", SkillCards.getById(cardId).name);
+    this.logger.debug("Drew card", SkillCards.getById(cardId).name);
     this.logger.log("drawCard", { type: "skillCard", id: cardId });
     return state;
   }
@@ -396,7 +405,7 @@ export default class StageEngine {
   _recycleDiscards(state) {
     state.deckCardIds = shuffle(state.discardedCardIds);
     state.discardedCardIds = [];
-    DEBUG && this.logger.debug("Recycled discard pile");
+    this.logger.debug("Recycled discard pile");
     return state;
   }
 
@@ -438,6 +447,26 @@ export default class StageEngine {
     return state;
   }
 
+  _setScoreBuff(state, amount, turns) {
+    const existingBuffIndex = state.scoreBuffs.findIndex(
+      (scoreBuff) => scoreBuff.turns == turns
+    );
+    if (existingBuffIndex != -1) {
+      state.scoreBuffs[existingBuffIndex].amount += amount;
+    } else {
+      state.scoreBuffs.push({
+        amount,
+        turns,
+        fresh: state.phase != "startOfTurn",
+      });
+    }
+    this.logger.log("setScoreBuff", {
+      amount,
+      turns,
+    });
+    return state;
+  }
+
   _getCardEffects(card) {
     let cardEffects = [];
     for (let effect of card.effects) {
@@ -464,6 +493,7 @@ export default class StageEngine {
   }
 
   _triggerEffectsForPhase(phase, state) {
+    const parentState = state.phase;
     state.phase = phase;
 
     let phaseEffects = [];
@@ -473,11 +503,11 @@ export default class StageEngine {
       phaseEffects.push({ ...effect, phase: null, index: i });
     }
 
-    DEBUG && this.logger.debug(phase, phaseEffects);
+    this.logger.debug(phase, phaseEffects);
 
     state = this._triggerEffects(phaseEffects, state);
 
-    state.phase = null;
+    state.phase = parentState;
 
     for (let idx of state.triggeredEffects) {
       const effectIndex = phaseEffects[idx].index;
@@ -550,7 +580,7 @@ export default class StageEngine {
 
       // Execute actions
       if (effect.actions) {
-        DEBUG && this.logger.debug("Executing actions", effect.actions);
+        this.logger.debug("Executing actions", effect.actions);
 
         state = this._executeActions(effect.actions, state);
 
@@ -561,7 +591,7 @@ export default class StageEngine {
 
       // Set effects
       if (effect.effects) {
-        DEBUG && this.logger.debug("Setting effects", effect.effects);
+        this.logger.debug("Setting effects", effect.effects);
 
         this.logger.log("setEffect");
 
@@ -593,7 +623,7 @@ export default class StageEngine {
       condition.split(/([=!]?=|[<>]=?|[+\-*/%]|&)/),
       state
     );
-    DEBUG && this.logger.debug("Condition", condition, result);
+    this.logger.debug("Condition", condition, result);
     return result;
   }
 
@@ -738,6 +768,11 @@ export default class StageEngine {
     if (tokens.length == 1) {
       if (tokens[0] == "drawCard") {
         state = this._drawCard(state);
+      } else if (tokens[0].startsWith("setScoreBuff")) {
+        state = this._setScoreBuff(
+          state,
+          ...tokens[0].match(/[\d\.]+/g).map(parseFloat)
+        );
       } else if (tokens[0] == "upgradeHand") {
         state = this._upgradeHand(state);
       } else if (tokens[0] == "exchangeHand") {
@@ -837,7 +872,7 @@ export default class StageEngine {
           }
 
           // Score buff effects
-          score *= 1 + state.oneTurnScoreBuff + state.permanentScoreBuff;
+          score *= state.scoreBuffs.reduce((acc, cur) => acc + cur.amount, 1);
           score = Math.ceil(score);
 
           // Turn type multiplier

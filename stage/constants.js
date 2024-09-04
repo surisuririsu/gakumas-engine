@@ -1,5 +1,3 @@
-export const DEBUG = false;
-
 export const DEBUFF_FIELDS = [
   "doubleCostTurns",
   "costIncrease",
@@ -43,8 +41,6 @@ export const LOGGED_FIELDS = [
   "concentration",
   "goodImpressionTurns",
   "motivation",
-  "oneTurnScoreBuff",
-  "permanentScoreBuff",
   "halfCostTurns",
   "doubleCostTurns",
   "costReduction",
