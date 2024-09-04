@@ -752,9 +752,9 @@ export default class StageEngine {
 
     // Trigger decrease effects
     for (let key of DECREASE_TRIGGER_FIELDS) {
-      if (state.phase == `${key}Increased`) continue;
+      if (state.phase == `${key}Decreased`) continue;
       if (state[key] > prev[key]) {
-        state = this._triggerEffectsForPhase(`${key}Increased`, state);
+        state = this._triggerEffectsForPhase(`${key}Decreased`, state);
       }
     }
 
