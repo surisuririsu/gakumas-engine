@@ -27,16 +27,16 @@ const RAW_RUNTIME_STATE =
       [null, {\
         "packageLocation": "./",\
         "packageDependencies": [\
-          ["gakumas-data", "https://github.com/surisuririsu/gakumas-data.git#commit=e0702a3f8015d6fc80fbfedba01703a6ef9ced09"]\
+          ["gakumas-data", "https://github.com/surisuririsu/gakumas-data.git#commit=8e919412efeda54a46ddedfb22e45fe298bd34ef"]\
         ],\
         "linkType": "SOFT"\
       }]\
     ]],\
     ["gakumas-data", [\
-      ["https://github.com/surisuririsu/gakumas-data.git#commit=e0702a3f8015d6fc80fbfedba01703a6ef9ced09", {\
-        "packageLocation": "./.yarn/cache/gakumas-data-https-3c1c5921a3-2e06c8cd1e.zip/node_modules/gakumas-data/",\
+      ["https://github.com/surisuririsu/gakumas-data.git#commit=8e919412efeda54a46ddedfb22e45fe298bd34ef", {\
+        "packageLocation": "./.yarn/cache/gakumas-data-https-5f47180e6a-6d9bac3356.zip/node_modules/gakumas-data/",\
         "packageDependencies": [\
-          ["gakumas-data", "https://github.com/surisuririsu/gakumas-data.git#commit=e0702a3f8015d6fc80fbfedba01703a6ef9ced09"]\
+          ["gakumas-data", "https://github.com/surisuririsu/gakumas-data.git#commit=8e919412efeda54a46ddedfb22e45fe298bd34ef"]\
         ],\
         "linkType": "HARD"\
       }]\
@@ -46,7 +46,7 @@ const RAW_RUNTIME_STATE =
         "packageLocation": "./",\
         "packageDependencies": [\
           ["gakumas-engine", "workspace:."],\
-          ["gakumas-data", "https://github.com/surisuririsu/gakumas-data.git#commit=e0702a3f8015d6fc80fbfedba01703a6ef9ced09"]\
+          ["gakumas-data", "https://github.com/surisuririsu/gakumas-data.git#commit=8e919412efeda54a46ddedfb22e45fe298bd34ef"]\
         ],\
         "linkType": "SOFT"\
       }]\
