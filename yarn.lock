@@ -5,10 +5,10 @@ __metadata:
   version: 8
   cacheKey: 10
 
-"gakumas-data@https://github.com/surisuririsu/gakumas-data#v4.0.3":
-  version: 4.0.3
-  resolution: "gakumas-data@https://github.com/surisuririsu/gakumas-data.git#commit=309d385c7e34cc72783039fcb1bf25495292f8e0"
-  checksum: 10/4e7d5fa68093cc105964d16bcbd6fd64025671ef58eee8cae0ff8c3fbe221be4ff04f81aa229c3527fb586a95ff9895eac64489d9071bbc85cff83d8c7a8bd43
+"gakumas-data@https://github.com/surisuririsu/gakumas-data#v4.0.4":
+  version: 4.0.4
+  resolution: "gakumas-data@https://github.com/surisuririsu/gakumas-data.git#commit=9d34a60f2f1ab4e7af389b2bad7577f81b6d0530"
+  checksum: 10/c0337cf5517b35b2b152b13d4138b2d8d39b2a2f91ec8e2198fe1cc18738b802bcf2e5c9f32601c52de73fa760ed80396dd70a6e6066773023228694c12fa978
   languageName: node
   linkType: hard
 
@@ -16,6 +16,6 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "gakumas-engine@workspace:."
   dependencies:
-    gakumas-data: "https://github.com/surisuririsu/gakumas-data#v4.0.3"
+    gakumas-data: "https://github.com/surisuririsu/gakumas-data#v4.0.4"
   languageName: unknown
   linkType: soft
