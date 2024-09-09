@@ -2,7 +2,7 @@
   "name": "gakumas-engine",
   "packageManager": "yarn@4.4.1",
   "type": "module",
-  "version": "0.6.5",
+  "version": "0.6.6",
   "dependencies": {
     "gakumas-data": "https://github.com/surisuririsu/gakumas-data#v4.0.4"
   }

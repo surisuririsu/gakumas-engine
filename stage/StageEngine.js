@@ -736,9 +736,11 @@ export default class StageEngine {
     }
 
     // Protect fresh stats from decrement
-    for (let key of EOT_DECREMENT_FIELDS) {
-      if (state[key] > 0 && prev[key] == 0) {
-        state.freshBuffs[key] = true;
+    if (!["startOfStage", "startOfTurn"].includes(state.phase)) {
+      for (let key of EOT_DECREMENT_FIELDS) {
+        if (state[key] > 0 && prev[key] == 0) {
+          state.freshBuffs[key] = true;
+        }
       }
     }
 
