@@ -908,7 +908,7 @@ export default class StageEngine {
       }
 
       for (let key of WHOLE_FIELDS) {
-        state[key] = Math.round(state[key]);
+        state[key] = Math.ceil(state[key]);
       }
     } else {
       console.warn("Invalid action", action);

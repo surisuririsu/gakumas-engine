@@ -1,4 +1,4 @@
-import { GRAPHED_FIELDS, LOGGED_FIELDS } from "./constants";
+import { LOGGED_FIELDS } from "./constants";
 
 export default class StagePlayer {
   constructor(engine, strategy) {
