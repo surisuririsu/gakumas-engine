@@ -1,4 +1,4 @@
-import { PIdols, PItems, SkillCards } from "gakumas-data";
+import { PIdols, PItems, SkillCards } from "gakumas-data/lite";
 
 const DEFAULT_CARDS_BY_PLAN = {
   sense: [5, 7, 1, 1, 15, 15, 17, 17],

@@ -1,4 +1,4 @@
-import { PItems, SkillCards } from "gakumas-data";
+import { PItems, SkillCards } from "gakumas-data/lite";
 import { shuffle } from "../utils";
 import {
   DEBUFF_FIELDS,
