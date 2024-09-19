@@ -323,7 +323,7 @@ export default class StageEngine {
         state.scoreBuffs[i].turns--;
       }
     }
-    state.scoreBuffs = state.scoreBuffs.filter(({ turns }) => turns);
+    state.scoreBuffs = state.scoreBuffs.filter(({ turns }) => turns != 0);
 
     // Reset one turn buffs
     state.cardUsesRemaining = 0;
